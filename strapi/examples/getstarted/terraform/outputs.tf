@@ -19,3 +19,4 @@ output "ssh_command" {
   description = "SSH command to connect to the instance"
   value       = "ssh -i ${var.key_name}.pem ec2-user@${aws_instance.strapi_instance.public_ip}"
 }
+

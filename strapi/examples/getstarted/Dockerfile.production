@@ -15,6 +15,9 @@ COPY ../../ ./
 # Install dependencies
 RUN yarn install
 
+# Build Strapi packages
+RUN yarn build
+
 # Set working directory to the app
 WORKDIR /opt/strapi/examples/getstarted
 

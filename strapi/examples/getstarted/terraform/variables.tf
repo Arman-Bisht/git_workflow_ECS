@@ -9,7 +9,7 @@ variable "aws_region" {
 variable "instance_type" {
   description = "EC2 instance type"
   type        = string
-  default     = "t2.micro"  # Free Tier eligible - 750 hours/month for 12 months
+  default     = "t3.micro" # 1GB RAM - minimal but works with 2GB swap
 }
 
 variable "key_name" {
@@ -17,8 +17,4 @@ variable "key_name" {
   type        = string
 }
 
-variable "docker_image" {
-  description = "Docker image to deploy (Docker Hub or ECR)"
-  type        = string
-  default     = "your-dockerhub-username/strapi-app:latest"
-}
+

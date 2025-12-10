@@ -63,7 +63,9 @@ resource "aws_route_table_association" "strapi_rta" {
   route_table_id = aws_route_table.strapi_rt.id
 }
 
-# Security Group
+
+
+# Security Group for EC2
 resource "aws_security_group" "strapi_sg" {
   name        = "strapi-security-group"
   description = "Security group for Strapi application"
@@ -110,6 +112,8 @@ resource "aws_security_group" "strapi_sg" {
   }
 }
 
+
+
 # Data source for availability zones
 data "aws_availability_zones" "available" {
   state = "available"
@@ -139,9 +143,7 @@ resource "aws_instance" "strapi_instance" {
   vpc_security_group_ids = [aws_security_group.strapi_sg.id]
   key_name               = var.key_name
 
-  user_data = templatefile("${path.module}/user_data.sh", {
-    docker_image = var.docker_image
-  })
+  user_data = file("${path.module}/user_data.sh")
 
   root_block_device {
     volume_size = 20
