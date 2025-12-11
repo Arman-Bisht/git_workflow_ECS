@@ -4,13 +4,11 @@ FROM node:20-alpine
 # Install dependencies
 RUN apk add --no-cache build-base gcc autoconf automake zlib-dev libpng-dev vips-dev git
 
-# Create a new Strapi project in /tmp first
-WORKDIR /tmp
-RUN npx create-strapi-app@latest myapp --quickstart --no-run
+# Create a new Strapi project
+RUN npx create-strapi-app@latest /opt/app --quickstart --no-run
 
-# Move to final location
+# Set working directory
 WORKDIR /opt/app
-RUN mv /tmp/myapp/* /opt/app/ && mv /tmp/myapp/.* /opt/app/ 2>/dev/null || true
 
 # Build admin panel
 ENV NODE_ENV=production
