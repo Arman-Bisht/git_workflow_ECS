@@ -3,6 +3,14 @@
 ## Overview
 This task implements CI/CD pipelines using GitHub Actions to automate Docker image builds and Terraform deployments.
 
+## CI/CD Pipeline Proof
+
+**CI Workflow - Automated Docker Build & Push to ECR:**
+![CI Build Success](../../../../CI_Build.png)
+
+**CD Workflow - Terraform Infrastructure Deployment:**
+![CD Deployment Success](../../../../CD_deployment.png)
+
 ## Architecture
 
 ### 1. CI Pipeline (`.github/workflows/ci.yml`)

@@ -24,10 +24,10 @@ output "ssh_command" {
 
 output "rds_endpoint" {
   description = "RDS PostgreSQL endpoint"
-  value       = aws_db_instance.strapi_db.endpoint
+  value       = data.aws_db_instance.strapi_db.endpoint
 }
 
 output "rds_address" {
   description = "RDS PostgreSQL address"
-  value       = aws_db_instance.strapi_db.address
+  value       = data.aws_db_instance.strapi_db.address
 }

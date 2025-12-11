@@ -82,5 +82,4 @@ echo "Strapi connected to RDS PostgreSQL at ${db_host}"
 
 # Log container status
 docker ps
-docker logs strapi-postgres
 docker logs strapi-app

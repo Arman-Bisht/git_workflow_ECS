@@ -48,6 +48,14 @@
 - ✓ Configured manual workflow triggers for infrastructure management
 - ✓ See: `.github/workflows/` and `strapi/examples/getstarted/TASK6_README.md`
 
+#### CI/CD Pipeline Proof
+
+**CI Workflow - Automated Docker Build & Push:**
+![CI Build Success](CI_Build.png)
+
+**CD Workflow - Terraform Deployment:**
+![CD Deployment Success](CD_deployment.png)
+
 ---
 
 ## 🚀 Setup Steps

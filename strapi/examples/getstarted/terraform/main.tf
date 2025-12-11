@@ -72,37 +72,13 @@ resource "aws_security_group" "strapi_sg" {
   }
 
   tags = {
-    Name = "strapi-sg"
+    Name = "Arman-EC2-SG"
   }
 }
 
-# Security Group for RDS
-resource "aws_security_group" "rds_sg" {
-  name        = "strapi-rds-sg"
-  description = "Security group for RDS PostgreSQL"
-  vpc_id      = data.aws_vpc.default.id
-
-  # PostgreSQL access from EC2
-  ingress {
-    from_port       = 5432
-    to_port         = 5432
-    protocol        = "tcp"
-    security_groups = [aws_security_group.strapi_sg.id]
-    description     = "PostgreSQL access from EC2"
-  }
-
-  # Outbound traffic
-  egress {
-    from_port   = 0
-    to_port     = 0
-    protocol    = "-1"
-    cidr_blocks = ["0.0.0.0/0"]
-    description = "Allow all outbound traffic"
-  }
-
-  tags = {
-    Name = "strapi-rds-sg"
-  }
+# Security Group for RDS (already exists, using data source)
+data "aws_security_group" "rds_sg" {
+  name = "strapi-rds-sg"
 }
 
 
@@ -128,70 +104,11 @@ data "aws_ami" "amazon_linux_2023" {
   }
 }
 
-# IAM Role for EC2 to access ECR
-resource "aws_iam_role" "ec2_ecr_role" {
-  name = "strapi-ec2-ecr-role"
+# IAM resources (already exist, hardcoded name due to permission restrictions)
 
-  assume_role_policy = jsonencode({
-    Version = "2012-10-17"
-    Statement = [
-      {
-        Action = "sts:AssumeRole"
-        Effect = "Allow"
-        Principal = {
-          Service = "ec2.amazonaws.com"
-        }
-      }
-    ]
-  })
-
-  tags = {
-    Name = "strapi-ec2-ecr-role"
-  }
-}
-
-# Attach ECR read-only policy to the role
-resource "aws_iam_role_policy_attachment" "ecr_read_only" {
-  role       = aws_iam_role.ec2_ecr_role.name
-  policy_arn = "arn:aws:iam::aws:policy/AmazonEC2ContainerRegistryReadOnly"
-}
-
-# Create instance profile
-resource "aws_iam_instance_profile" "ec2_ecr_profile" {
-  name = "strapi-ec2-ecr-profile"
-  role = aws_iam_role.ec2_ecr_role.name
-}
-
-# DB Subnet Group for RDS
-resource "aws_db_subnet_group" "strapi_db_subnet" {
-  name       = "strapi-db-subnet"
-  subnet_ids = data.aws_subnets.default.ids
-
-  tags = {
-    Name = "strapi-db-subnet"
-  }
-}
-
-# RDS PostgreSQL Instance
-resource "aws_db_instance" "strapi_db" {
-  identifier             = "strapi-postgres"
-  engine                 = "postgres"
-  engine_version         = "15.4"
-  instance_class         = "db.t3.micro"
-  allocated_storage      = 20
-  storage_type           = "gp3"
-  db_name                = "strapi"
-  username               = var.db_username
-  password               = var.db_password
-  db_subnet_group_name   = aws_db_subnet_group.strapi_db_subnet.name
-  vpc_security_group_ids = [aws_security_group.rds_sg.id]
-  publicly_accessible    = false
-  skip_final_snapshot    = true
-  backup_retention_period = 7
-  
-  tags = {
-    Name = "strapi-postgres"
-  }
+# RDS PostgreSQL Instance (already exists, using data source)
+data "aws_db_instance" "strapi_db" {
+  db_instance_identifier = "strapi-postgres"
 }
 
 # EC2 Instance
@@ -201,12 +118,13 @@ resource "aws_instance" "strapi_instance" {
   subnet_id              = data.aws_subnets.default.ids[0]
   vpc_security_group_ids = [aws_security_group.strapi_sg.id]
   key_name               = var.key_name != "" ? var.key_name : null
-  iam_instance_profile   = aws_iam_instance_profile.ec2_ecr_profile.name
+  # iam_instance_profile removed due to IAM permission restrictions in org account
+  # ECR login will use AWS CLI with credentials instead
 
   user_data = templatefile("${path.module}/user_data.sh", {
-    db_host     = aws_db_instance.strapi_db.address
-    db_port     = aws_db_instance.strapi_db.port
-    db_name     = aws_db_instance.strapi_db.db_name
+    db_host     = data.aws_db_instance.strapi_db.address
+    db_port     = data.aws_db_instance.strapi_db.port
+    db_name     = data.aws_db_instance.strapi_db.db_name
     db_username = var.db_username
     db_password = var.db_password
   })
@@ -220,5 +138,5 @@ resource "aws_instance" "strapi_instance" {
     Name = "Arman"
   }
   
-  depends_on = [aws_db_instance.strapi_db]
+  depends_on = [data.aws_db_instance.strapi_db]
 }
