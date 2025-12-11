@@ -99,60 +99,6 @@ data "aws_ami" "amazon_linux_2023" {
   }
 }
 
-# IAM Role for EC2 to access ECR
-resource "aws_iam_role" "ec2_ecr_role" {
-  name = "strapi-ec2-ecr-role"
-
-  assume_role_policy = jsonencode({
-    Version = "2012-10-17"
-    Statement = [
-      {
-        Action = "sts:AssumeRole"
-        Effect = "Allow"
-        Principal = {
-          Service = "ec2.amazonaws.com"
-        }
-      }
-    ]
-  })
-
-  tags = {
-    Name = "strapi-ec2-ecr-role"
-  }
-}
-
-# IAM Policy for ECR access
-resource "aws_iam_role_policy" "ecr_policy" {
-  name = "strapi-ecr-policy"
-  role = aws_iam_role.ec2_ecr_role.id
-
-  policy = jsonencode({
-    Version = "2012-10-17"
-    Statement = [
-      {
-        Effect = "Allow"
-        Action = [
-          "ecr:GetAuthorizationToken",
-          "ecr:BatchCheckLayerAvailability",
-          "ecr:GetDownloadUrlForLayer",
-          "ecr:BatchGetImage"
-        ]
-        Resource = "*"
-      }
-    ]
-  })
-}
-
-# IAM Instance Profile
-resource "aws_iam_instance_profile" "ec2_profile" {
-  name = "strapi-ec2-profile"
-  role = aws_iam_role.ec2_ecr_role.name
-
-  tags = {
-    Name = "strapi-ec2-profile"
-  }
-}
-
 # EC2 Instance
 resource "aws_instance" "strapi_instance" {
   ami                    = data.aws_ami.amazon_linux_2023.id
@@ -160,12 +106,11 @@ resource "aws_instance" "strapi_instance" {
   subnet_id              = data.aws_subnets.default.ids[0]
   vpc_security_group_ids = [aws_security_group.strapi_sg.id]
   key_name               = var.key_name != "" ? var.key_name : null
-  iam_instance_profile   = aws_iam_instance_profile.ec2_profile.name
 
   user_data = file("${path.module}/user_data.sh")
 
   root_block_device {
-    volume_size = 20
+    volume_size = 30
     volume_type = "gp3"
   }
 
