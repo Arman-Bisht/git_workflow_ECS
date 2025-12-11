@@ -99,6 +99,40 @@ data "aws_ami" "amazon_linux_2023" {
   }
 }
 
+# IAM Role for EC2 to access ECR
+resource "aws_iam_role" "ec2_ecr_role" {
+  name = "strapi-ec2-ecr-role"
+
+  assume_role_policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Action = "sts:AssumeRole"
+        Effect = "Allow"
+        Principal = {
+          Service = "ec2.amazonaws.com"
+        }
+      }
+    ]
+  })
+
+  tags = {
+    Name = "strapi-ec2-ecr-role"
+  }
+}
+
+# Attach ECR read-only policy to the role
+resource "aws_iam_role_policy_attachment" "ecr_read_only" {
+  role       = aws_iam_role.ec2_ecr_role.name
+  policy_arn = "arn:aws:iam::aws:policy/AmazonEC2ContainerRegistryReadOnly"
+}
+
+# Create instance profile
+resource "aws_iam_instance_profile" "ec2_ecr_profile" {
+  name = "strapi-ec2-ecr-profile"
+  role = aws_iam_role.ec2_ecr_role.name
+}
+
 # EC2 Instance
 resource "aws_instance" "strapi_instance" {
   ami                    = data.aws_ami.amazon_linux_2023.id
@@ -106,6 +140,7 @@ resource "aws_instance" "strapi_instance" {
   subnet_id              = data.aws_subnets.default.ids[0]
   vpc_security_group_ids = [aws_security_group.strapi_sg.id]
   key_name               = var.key_name != "" ? var.key_name : null
+  iam_instance_profile   = aws_iam_instance_profile.ec2_ecr_profile.name
 
   user_data = file("${path.module}/user_data.sh")
 
