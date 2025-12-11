@@ -40,6 +40,14 @@
 - ✓ Configured VPC, Security Groups, and networking
 - ✓ See: `strapi/examples/getstarted/TASK5_README.md`
 
+### Task 6: GitHub Actions CI/CD Pipeline
+- ✓ Created CI workflow for Docker image builds
+- ✓ Automated Docker image push to AWS ECR
+- ✓ Created CD workflow for Terraform deployments
+- ✓ Deployed EC2 instance with IAM role for ECR access
+- ✓ Configured manual workflow triggers for infrastructure management
+- ✓ See: `.github/workflows/` and `strapi/examples/getstarted/TASK6_README.md`
+
 ---
 
 ## 🚀 Setup Steps
@@ -97,14 +105,19 @@ Access admin panel at: `http://localhost:1337/admin`
 Script-Smiths/
 ├── README.md                           # This file
 ├── TASK2_DOCKER_SUMMARY.md            # Task 2 documentation
+├── .github/
+│   └── workflows/
+│       ├── ci.yml                      # CI workflow for Docker builds
+│       └── terraform.yml               # CD workflow for deployments
 └── strapi/
     └── examples/
         └── getstarted/
-            ├── Dockerfile                  # Docker image definition
+            ├── Dockerfile.ci               # CI/CD Docker image
             ├── docker-compose.yml          # Multi-container setup
             ├── nginx.conf                  # Nginx configuration
             ├── Task_4_docker.md           # Docker deep dive
             ├── TASK5_README.md            # EC2 deployment guide
+            ├── TASK6_README.md            # CI/CD pipeline guide
             └── terraform/                  # Infrastructure as code
                 ├── main.tf
                 ├── variables.tf
@@ -123,6 +136,8 @@ Script-Smiths/
 - **Nginx**: Reverse proxy
 - **Terraform**: Infrastructure as Code
 - **AWS EC2**: Cloud deployment
+- **AWS ECR**: Container registry
+- **GitHub Actions**: CI/CD automation
 - **Amazon Linux 2023**: Operating system
 
 ---
