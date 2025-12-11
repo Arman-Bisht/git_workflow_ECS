@@ -7,7 +7,6 @@ on:
       - Arman_Bisht_v2
     paths:
       - 'strapi/examples/getstarted/**'
-      - '.github/workflows/ci.yml'
 
 env:
   AWS_REGION: ap-south-1
