@@ -76,6 +76,35 @@ resource "aws_security_group" "strapi_sg" {
   }
 }
 
+# Security Group for RDS
+resource "aws_security_group" "rds_sg" {
+  name        = "strapi-rds-sg"
+  description = "Security group for RDS PostgreSQL"
+  vpc_id      = data.aws_vpc.default.id
+
+  # PostgreSQL access from EC2
+  ingress {
+    from_port       = 5432
+    to_port         = 5432
+    protocol        = "tcp"
+    security_groups = [aws_security_group.strapi_sg.id]
+    description     = "PostgreSQL access from EC2"
+  }
+
+  # Outbound traffic
+  egress {
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
+    cidr_blocks = ["0.0.0.0/0"]
+    description = "Allow all outbound traffic"
+  }
+
+  tags = {
+    Name = "strapi-rds-sg"
+  }
+}
+
 
 
 # Data source for availability zones
@@ -133,6 +162,38 @@ resource "aws_iam_instance_profile" "ec2_ecr_profile" {
   role = aws_iam_role.ec2_ecr_role.name
 }
 
+# DB Subnet Group for RDS
+resource "aws_db_subnet_group" "strapi_db_subnet" {
+  name       = "strapi-db-subnet"
+  subnet_ids = data.aws_subnets.default.ids
+
+  tags = {
+    Name = "strapi-db-subnet"
+  }
+}
+
+# RDS PostgreSQL Instance
+resource "aws_db_instance" "strapi_db" {
+  identifier             = "strapi-postgres"
+  engine                 = "postgres"
+  engine_version         = "15.4"
+  instance_class         = "db.t3.micro"
+  allocated_storage      = 20
+  storage_type           = "gp3"
+  db_name                = "strapi"
+  username               = var.db_username
+  password               = var.db_password
+  db_subnet_group_name   = aws_db_subnet_group.strapi_db_subnet.name
+  vpc_security_group_ids = [aws_security_group.rds_sg.id]
+  publicly_accessible    = false
+  skip_final_snapshot    = true
+  backup_retention_period = 7
+  
+  tags = {
+    Name = "strapi-postgres"
+  }
+}
+
 # EC2 Instance
 resource "aws_instance" "strapi_instance" {
   ami                    = data.aws_ami.amazon_linux_2023.id
@@ -142,7 +203,13 @@ resource "aws_instance" "strapi_instance" {
   key_name               = var.key_name != "" ? var.key_name : null
   iam_instance_profile   = aws_iam_instance_profile.ec2_ecr_profile.name
 
-  user_data = file("${path.module}/user_data.sh")
+  user_data = templatefile("${path.module}/user_data.sh", {
+    db_host     = aws_db_instance.strapi_db.address
+    db_port     = aws_db_instance.strapi_db.port
+    db_name     = aws_db_instance.strapi_db.db_name
+    db_username = var.db_username
+    db_password = var.db_password
+  })
 
   root_block_device {
     volume_size = 30
@@ -152,4 +219,6 @@ resource "aws_instance" "strapi_instance" {
   tags = {
     Name = "Arman"
   }
+  
+  depends_on = [aws_db_instance.strapi_db]
 }

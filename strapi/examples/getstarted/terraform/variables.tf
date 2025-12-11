@@ -19,3 +19,17 @@ variable "key_name" {
 }
 
 
+
+variable "db_username" {
+  description = "Database master username"
+  type        = string
+  default     = "strapi"
+  sensitive   = true
+}
+
+variable "db_password" {
+  description = "Database master password"
+  type        = string
+  default     = "strapi123456"
+  sensitive   = true
+}

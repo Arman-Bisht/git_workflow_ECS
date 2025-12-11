@@ -37,29 +37,9 @@ mkswap /swapfile
 swapon /swapfile
 echo '/swapfile none swap sw 0 0' >> /etc/fstab
 
-# Create Docker network
-echo "Creating Docker network..."
-docker network create strapi-network
-
-# Pull PostgreSQL image
-echo "Pulling PostgreSQL Docker image..."
-docker pull postgres:15-alpine
-
-# Run PostgreSQL container
-echo "Starting PostgreSQL container..."
-docker run -d \
-  --name strapi-postgres \
-  --network strapi-network \
-  --restart unless-stopped \
-  -e POSTGRES_USER=strapi \
-  -e POSTGRES_PASSWORD=strapi123 \
-  -e POSTGRES_DB=strapi \
-  -v postgres-data:/var/lib/postgresql/data \
-  postgres:15-alpine
-
-# Wait for PostgreSQL to be ready
-echo "Waiting for PostgreSQL to be ready..."
-sleep 15
+# Wait for RDS to be ready
+echo "Waiting for RDS PostgreSQL to be ready..."
+sleep 30
 
 # Install AWS CLI v2
 echo "Installing AWS CLI..."
@@ -77,19 +57,18 @@ aws ecr get-login-password --region ap-south-1 | docker login --username AWS --p
 echo "Pulling Strapi Docker image from ECR..."
 docker pull 301782007642.dkr.ecr.ap-south-1.amazonaws.com/arman:latest
 
-# Run Strapi container with PostgreSQL connection
-echo "Starting Strapi container with PostgreSQL..."
+# Run Strapi container with RDS PostgreSQL connection
+echo "Starting Strapi container with RDS PostgreSQL..."
 docker run -d \
   --name strapi-app \
-  --network strapi-network \
   --restart unless-stopped \
   -p 1337:1337 \
   -e DATABASE_CLIENT=postgres \
-  -e DATABASE_HOST=strapi-postgres \
-  -e DATABASE_PORT=5432 \
-  -e DATABASE_NAME=strapi \
-  -e DATABASE_USERNAME=strapi \
-  -e DATABASE_PASSWORD=strapi123 \
+  -e DATABASE_HOST=${db_host} \
+  -e DATABASE_PORT=${db_port} \
+  -e DATABASE_NAME=${db_name} \
+  -e DATABASE_USERNAME=${db_username} \
+  -e DATABASE_PASSWORD=${db_password} \
   -e NODE_ENV=production \
   -e APP_KEYS=toBeModified1,toBeModified2 \
   -e API_TOKEN_SALT=tobemodified \
@@ -99,8 +78,7 @@ docker run -d \
   301782007642.dkr.ecr.ap-south-1.amazonaws.com/arman:latest
 
 echo "Strapi deployment completed!"
-echo "PostgreSQL running in Docker container"
-echo "Strapi connected to local PostgreSQL"
+echo "Strapi connected to RDS PostgreSQL at ${db_host}"
 
 # Log container status
 docker ps

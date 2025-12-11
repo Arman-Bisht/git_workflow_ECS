@@ -20,3 +20,14 @@ output "ssh_command" {
   value       = var.key_name != "" ? "ssh -i ${var.key_name}.pem ec2-user@${aws_instance.strapi_instance.public_ip}" : "Use EC2 Instance Connect in AWS Console"
 }
 
+
+
+output "rds_endpoint" {
+  description = "RDS PostgreSQL endpoint"
+  value       = aws_db_instance.strapi_db.endpoint
+}
+
+output "rds_address" {
+  description = "RDS PostgreSQL address"
+  value       = aws_db_instance.strapi_db.address
+}
