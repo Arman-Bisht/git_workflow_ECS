@@ -1,27 +1,21 @@
-# CI/CD Dockerfile for Strapi Application
-FROM node:14-alpine
-
-# Install dependencies for building
-RUN apk add --no-cache build-base gcc autoconf automake zlib-dev libpng-dev vips-dev
-
-# Set working directory
-WORKDIR /opt/app
-
-# Copy package files
-COPY package*.json ./
+# Simple Strapi v4 Dockerfile
+FROM node:18-alpine
 
 # Install dependencies
-RUN npm install --production
+RUN apk add --no-cache build-base gcc autoconf automake zlib-dev libpng-dev vips-dev git
 
-# Copy application code
-COPY . .
+# Create app directory
+WORKDIR /opt/app
 
-# Build admin panel with increased memory
+# Create a new Strapi project
+RUN npx create-strapi-app@latest . --quickstart --no-run
+
+# Build admin panel
 ENV NODE_ENV=production
-RUN NODE_OPTIONS="--max-old-space-size=2048" npm run build || echo "Build completed with warnings"
+RUN npm run build
 
-# Expose Strapi port
+# Expose port
 EXPOSE 1337
 
-# Start the application
+# Start Strapi
 CMD ["npm", "start"]
