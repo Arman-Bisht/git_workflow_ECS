@@ -15,6 +15,9 @@ RUN npm install
 # Copy application code
 COPY . .
 
+# Create required directories
+RUN mkdir -p public .tmp
+
 # Build Strapi admin
 ENV NODE_ENV=production
 RUN npm run build

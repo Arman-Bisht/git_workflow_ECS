@@ -41,6 +41,16 @@ resource "aws_ecs_task_definition" "strapi" {
       { name = "HOST", value = "0.0.0.0" },
       { name = "PORT", value = "1337" }
     ]
+
+    logConfiguration = {
+      logDriver = "awslogs"
+      options = {
+        "awslogs-group"         = "/ecs/${var.project_name}"
+        "awslogs-region"        = var.aws_region
+        "awslogs-stream-prefix" = "strapi"
+        "awslogs-create-group"  = "true"
+      }
+    }
   }])
 
   tags = {
