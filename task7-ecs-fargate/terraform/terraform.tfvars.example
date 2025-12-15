@@ -1,0 +1,15 @@
+# AWS Configuration
+aws_region = "ap-south-1"
+
+# Project Configuration
+project_name = "arman-strapi-ecs"
+
+# Database Configuration
+db_name     = "strapidb"
+db_username = "strapiuser"
+db_password = "your-secure-password-here"  # Change this!
+
+# ECS Configuration
+fargate_cpu    = "512"
+fargate_memory = "1024"
+app_count      = 1
