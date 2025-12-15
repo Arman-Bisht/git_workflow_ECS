@@ -1,5 +1,5 @@
 # Task 7: ECS Fargate Deployment with Terraform
-# Strapi on AWS ECS Fargate with ALB and RDS
+# Strapi on AWS ECS Fargate - Simplified
 
 terraform {
   required_version = ">= 1.0"
@@ -23,7 +23,14 @@ provider "aws" {
   region = var.aws_region
 }
 
-# Data sources
-data "aws_availability_zones" "available" {
-  state = "available"
+# Data sources for default VPC
+data "aws_vpc" "default" {
+  default = true
+}
+
+data "aws_subnets" "default" {
+  filter {
+    name   = "vpc-id"
+    values = [data.aws_vpc.default.id]
+  }
 }

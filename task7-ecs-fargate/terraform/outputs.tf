@@ -15,12 +15,7 @@ output "ecs_service_name" {
   value       = aws_ecs_service.strapi.name
 }
 
-output "rds_endpoint" {
-  description = "RDS endpoint"
-  value       = aws_db_instance.postgres.endpoint
-}
-
 output "access_instructions" {
   description = "How to access the application"
-  value       = "Get task public IP from ECS console or use: aws ecs list-tasks --cluster ${aws_ecs_cluster.main.name} --service-name ${aws_ecs_service.strapi.name}"
+  value       = "Get task public IP from ECS console or use AWS CLI to find running tasks"
 }
