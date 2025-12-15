@@ -1,33 +1,26 @@
-# Simple Node.js server for testing ECS Fargate deployment
+# Dockerfile for Strapi on ECS Fargate
 FROM node:18-alpine
 
-WORKDIR /app
+WORKDIR /opt/app
 
-# Create a simple Express server
-RUN npm install express
+# Install dependencies
+RUN apk add --no-cache build-base gcc autoconf automake zlib-dev libpng-dev vips-dev git
 
-# Create server file
-RUN echo 'const express = require("express");\n\
-const app = express();\n\
-const PORT = process.env.PORT || 1337;\n\
-\n\
-app.get("/", (req, res) => {\n\
-  res.json({\n\
-    message: "Task 7: ECS Fargate Deployment Successful!",\n\
-    timestamp: new Date().toISOString(),\n\
-    environment: process.env.NODE_ENV || "development"\n\
-  });\n\
-});\n\
-\n\
-app.get("/health", (req, res) => {\n\
-  res.json({ status: "healthy" });\n\
-});\n\
-\n\
-app.listen(PORT, "0.0.0.0", () => {\n\
-  console.log(`Server running on port ${PORT}`);\n\
-});\n\
-' > server.js
+# Copy package files
+COPY package*.json ./
 
+# Install all dependencies
+RUN npm install
+
+# Copy application code
+COPY . .
+
+# Build Strapi admin
+ENV NODE_ENV=production
+RUN npm run build
+
+# Expose port
 EXPOSE 1337
 
-CMD ["node", "server.js"]
+# Start Strapi
+CMD ["npm", "run", "start"]

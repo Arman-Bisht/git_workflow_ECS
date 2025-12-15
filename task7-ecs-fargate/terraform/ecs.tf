@@ -32,7 +32,7 @@ resource "aws_ecs_task_definition" "strapi" {
     }]
 
     environment = [
-      { name = "NODE_ENV", value = "development" },
+      { name = "NODE_ENV", value = "production" },
       { name = "APP_KEYS", value = "toBeModified1,toBeModified2" },
       { name = "API_TOKEN_SALT", value = "tobemodified" },
       { name = "ADMIN_JWT_SECRET", value = "tobemodified" },
