@@ -16,7 +16,7 @@ RUN npm install
 COPY . .
 
 # Create required directories
-RUN mkdir -p public .tmp
+RUN mkdir -p public/uploads .tmp
 
 # Build Strapi admin
 ENV NODE_ENV=production
