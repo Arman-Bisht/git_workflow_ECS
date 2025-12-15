@@ -38,12 +38,14 @@ resource "aws_ecs_task_definition" "strapi" {
       { name = "DATABASE_NAME", value = var.db_name },
       { name = "DATABASE_USERNAME", value = var.db_username },
       { name = "DATABASE_PASSWORD", value = var.db_password },
-      { name = "NODE_ENV", value = "production" },
+      { name = "NODE_ENV", value = "development" },
       { name = "APP_KEYS", value = "toBeModified1,toBeModified2" },
       { name = "API_TOKEN_SALT", value = "tobemodified" },
       { name = "ADMIN_JWT_SECRET", value = "tobemodified" },
       { name = "TRANSFER_TOKEN_SALT", value = "tobemodified" },
-      { name = "JWT_SECRET", value = "tobemodified" }
+      { name = "JWT_SECRET", value = "tobemodified" },
+      { name = "HOST", value = "0.0.0.0" },
+      { name = "PORT", value = "1337" }
     ]
   }])
 
